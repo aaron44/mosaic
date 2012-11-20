@@ -1,4 +1,5 @@
 from graphics import *
+from PIL import ImageTk
 from pixelize import pixelize
 
 
@@ -29,8 +30,8 @@ def main():
 		buttons[b].set_fill('white')
 		buttons[b].draw(win)
 
-	# image = Image(Point(50,50), open('./Elephant.jpg', 'r'))
-	# image.draw(win)
+	image = Image(Point(50,50), './Elephant.png')
+	image.draw(win)
 
 	win.get_mouse()
 

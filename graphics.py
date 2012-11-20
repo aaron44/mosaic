@@ -1,5 +1,6 @@
 import time, math, os
 import tkinter as tk
+from PIL import Image as Img, ImageTk
 from random import randrange
 
 ##########################################################################
@@ -677,14 +678,15 @@ class Image(GraphicsObject):
         self.imageId = Image.idCount
         Image.idCount = Image.idCount + 1
         if len(pixmap) == 1: # file name provided
-            self.img = tk.PhotoImage(file=pixmap[0], master=_root)
+            image = Img.open(pixmap[0])
+            self.img = ImageTk.PhotoImage(image)
         else: # width and height provided
             width, height = pixmap
             self.img = tk.PhotoImage(master=_root, width=width, height=height)
                 
     def _draw(self, canvas, options):
         p = self.anchor
-        x,y = canvas.toScreen(p.x,p.y)
+        x,y = canvas.to_screen(p.x,p.y)
         self.imageCache[self.imageId] = self.img # save a reference  
         return canvas.create_image(x,y,image=self.img)
     
