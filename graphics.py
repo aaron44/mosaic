@@ -556,7 +556,7 @@ class Text(GraphicsObject):
         else:
             raise GraphicsError(BAD_OPTION)
 
-    def set_text_color(self, color):
+    def set_color(self, color):
         self.set_fill(color)
 
 
@@ -579,8 +579,8 @@ class Entry(GraphicsObject):
         self.entry = tk.Entry(frm,
                               width=self.width,
                               textvariable=self.text,
-                              bg = self.fill,
-                              fg = self.color,
+                              bg=self.fill,
+                              fg=self.color,
                               font=self.font)
         self.entry.pack()
         #self.set_fill(self.fill)
@@ -639,10 +639,31 @@ class Entry(GraphicsObject):
         else:
             raise GraphicsError(BAD_OPTION)
 
-    def set_text_color(self, color):
+    def set_color(self, color):
         self.color=color
         if self.entry:
             self.entry.config(fg=color)
+
+
+class Spin(Entry):
+    def __init__(self, p, width, range):
+        Entry.__init__(self, p, width)
+        self.small, self.large = range
+
+    def _draw(self, canvas, options):
+        p = self.anchor
+        x,y = canvas.to_screen(p.x,p.y)
+        frm = tk.Frame(canvas.master)
+        self.entry = tk.Spinbox(frm,
+                                width=self.width,
+                                textvariable=self.text,
+                                to=self.large,
+                                from_=self.small,    
+                                bg=self.fill,
+                                fg=self.color,
+                                font=self.font)
+        self.entry.pack()
+        return canvas.create_window(x,y,window=frm)
 
 
 class Image(GraphicsObject):
@@ -722,10 +743,10 @@ class Image(GraphicsObject):
         
         path, name = os.path.split(filename)
         ext = name.split(".")[-1]
-        self.img.write( filename, format=ext)
+        self.img.write(filename, format=ext)
 
 
-class Button(Rectangle):
+class BButton(Rectangle):
     def __init__(self, center, width, height, label):
         self.center = center
         w, h = width/2.0, height/2.0
@@ -752,7 +773,7 @@ class Button(Rectangle):
         self.box.set_fill(color)
 
     def set_color(self, color):   
-        self.label.set_text_color(color)
+        self.label.set_color(color)
 
     def set_label(self, text):    
         self.label.set_text(text)
@@ -775,19 +796,81 @@ class Button(Rectangle):
         return self.center.getY()
 
 
-    def clicked(self, p): return (self.active and
-        self.xmin <= p.getX() <= self.xmax and
-        self.ymin <= p.getY() <= self.ymax)
+    def clicked(self, p): 
+        return (self.active and
+            self.xmin <= p.getX() <= self.xmax and
+            self.ymin <= p.getY() <= self.ymax
+        )
 
     def activate(self):
-        self.label.set_text_color('black')
+        self.set_color('black')
         self.box.set_width(2)
         self.active = True
 
     def deactivate(self):
-        self.label.set_text_color('darkgrey')
+        self.set_color('darkgrey')
         self.box.set_width(1)
         self.active = False
+
+
+class Button(GraphicsObject):
+    def __init__(self, center, width, text="", command=None, state="active"):
+        GraphicsObject.__init__(self, [])
+        self.anchor = center.clone()
+        self.width = width
+        self.text = tk.StringVar(_root)
+        self.text.set(text)
+        self.fill = "gray"
+        self.color = "black"
+        self.state = state
+        self.button = None
+        self.command = command
+
+    def _draw(self, canvas, options):
+        p = self.anchor
+        x,y = canvas.to_screen(p.x,p.y)
+        frm = tk.Frame(canvas.master)
+        self.button = tk.Button(frm,
+                                command=self.command,
+                                width=self.width,
+                                text=self.text,
+                                activebackground=self.fill,
+                                bg=self.fill,
+                                state=self.state,
+                                fg=self.color)
+        self.button.pack()
+        return canvas.create_window(x,y,window=frm)
+
+    def get_text(self):
+        return self.text.get()
+
+    def _move(self, dx, dy):
+        self.anchor.move(dx,dy)
+
+    def get_anchor(self):
+        return self.anchor.clone()
+
+    def clone(self):
+        other = TKButton(self.anchor, self.width)
+        other.config = self.config.copy()
+        other.text = tk.StringVar()
+        other.text.set(self.text.get())
+        other.fill = self.fill
+        return other
+
+    def set_text(self, t):
+        self.text.set(t)
+
+    def set_fill(self, color):
+        self.fill = color
+        if self.button:
+            self.button.config(bg=color)
+
+    def set_color(self, color):
+        self.color=color
+        if self.button:
+            self.button.config(fg=color)
+
 
 
 class Overlay(Rectangle):
