@@ -1,5 +1,6 @@
 import time, math, os
 import tkinter as tk
+from tkinter import filedialog
 from PIL import Image as Img, ImageTk
 from random import randrange
 
@@ -748,73 +749,6 @@ class Image(GraphicsObject):
         self.img.write(filename, format=ext)
 
 
-class BButton(Rectangle):
-    def __init__(self, center, width, height, label):
-        self.center = center
-        w, h = width/2.0, height/2.0
-        x, y = center.getX(), center.getY()
-        self.xmax, self.xmin = x+w, x-w
-        self.ymax, self.ymin = y+h, y-h
-        p1 = Point(self.xmin, self.ymin)
-        p2 = Point(self.xmax, self.ymax)
-        self.box = Rectangle(p1, p2)
-
-        self.box.set_fill('lightgray')
-        self.label = Text(center, label)
-        self.deactivate()
-
-    def draw(self, win):
-        self.box.draw(win)
-        self.label.draw(win)
-
-
-    def set_outline(self, color): 
-        self.box.set_outline(color)
-
-    def set_fill(self, color):    
-        self.box.set_fill(color)
-
-    def set_color(self, color):   
-        self.label.set_color(color)
-
-    def set_label(self, text):    
-        self.label.set_text(text)
-
-
-    def set_active(self): 
-        self.active = True
-
-    def set_deactive(self): 
-        self.active = False
-
-
-    def get_label(self): 
-        return self.label.get_text()
-
-    def getX(self): 
-        return self.center.getX()
-
-    def getY(self):
-        return self.center.getY()
-
-
-    def clicked(self, p): 
-        return (self.active and
-            self.xmin <= p.getX() <= self.xmax and
-            self.ymin <= p.getY() <= self.ymax
-        )
-
-    def activate(self):
-        self.set_color('black')
-        self.box.set_width(2)
-        self.active = True
-
-    def deactivate(self):
-        self.set_color('darkgrey')
-        self.box.set_width(1)
-        self.active = False
-
-
 class Button(GraphicsObject):
     def __init__(self, center, width, text="", command=None, state="active"):
         GraphicsObject.__init__(self, [])
@@ -875,10 +809,19 @@ class Button(GraphicsObject):
 
 
 
-class Overlay(Rectangle):
-    def __init__(self):
-        pass
-        # TODO: Implement this.
+class Dialog:
+    def __init__(self, kind, ext="", dir='./', types=[('Any File','*')], title=""):
+        options = {
+            'defaultextension': ext,
+            'filetypes': types,
+            'initialdir': dir,
+            'title': title
+        }
+        if kind is 'open':
+            filedialog.askopenfilename(**options)
+        elif kind is 'save':
+            filedialog.asksaveasfilename(**options)
+
 
         
 def color_rgb(r,g,b):
