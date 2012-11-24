@@ -679,8 +679,7 @@ class Image(GraphicsObject):
         self.imageId = Image.idCount
         Image.idCount = Image.idCount + 1
         if len(pixmap) == 1: # file name provided
-            image = Img.open(pixmap[0])
-            self.img = ImageTk.PhotoImage(image)
+            self.img = tk.PhotoImage(file=pixmap[0], master=_root)
         else: # width and height provided
             width, height = pixmap
             self.img = tk.PhotoImage(master=_root, width=width, height=height)
@@ -710,6 +709,11 @@ class Image(GraphicsObject):
         other.anchor = self.anchor.clone()
         other.config = self.config.copy()
         return other
+
+    def pixelize(self, size=10):
+        """Pixelizes the image to the size of `size`"""
+        for block in range(0, self.img.get_width(), size):
+            pass
 
     def get_width(self):
         """Returns the width of the image in pixels"""
@@ -746,11 +750,11 @@ class Image(GraphicsObject):
         
         path, name = os.path.split(filename)
         ext = name.split(".")[-1]
-        self.img.write(filename, format=ext)
+        self.img.write( filename, format=ext)
 
 
 class Button(GraphicsObject):
-    def __init__(self, center, width, text="", command=None, state="active"):
+    def __init__(self, center, width, text, command, state="active"):
         GraphicsObject.__init__(self, [])
         self.anchor = center.clone()
         self.width = width
@@ -770,7 +774,6 @@ class Button(GraphicsObject):
                                 command=self.command,
                                 width=self.width,
                                 text=self.text,
-                                activebackground=self.fill,
                                 bg=self.fill,
                                 state=self.state,
                                 fg=self.color)
@@ -787,7 +790,7 @@ class Button(GraphicsObject):
         return self.anchor.clone()
 
     def clone(self):
-        other = TKButton(self.anchor, self.width)
+        other = Button(self.anchor, self.width)
         other.config = self.config.copy()
         other.text = tk.StringVar()
         other.text.set(self.text.get())
@@ -806,21 +809,6 @@ class Button(GraphicsObject):
         self.color=color
         if self.button:
             self.button.config(fg=color)
-
-
-
-class Dialog:
-    def __init__(self, kind, ext="", dir='./', types=[('Any File','*')], title=""):
-        options = {
-            'defaultextension': ext,
-            'filetypes': types,
-            'initialdir': dir,
-            'title': title
-        }
-        if kind is 'open':
-            filedialog.askopenfilename(**options)
-        elif kind is 'save':
-            filedialog.asksaveasfilename(**options)
 
 
         

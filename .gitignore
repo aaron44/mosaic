@@ -1,4 +1,7 @@
 __pycache__/
 *.png
+*.jpg
+*.gif
 .DS_Store
 *.so
+*/test/*
