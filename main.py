@@ -1,45 +1,29 @@
-from graphics import *
-from pixelize import pixelize
-from tkinter import filedialog as tkf
+from tkinter import *
+from tkinter import filedialog as dialog
+from PIL import Image, ImageTk
+
 
 def main():
-	win = GraphWin("Pixelixer", 800, 500)
-	win.set_coords(5,495,795,5)
-	win.set_background('gray')
+    root = Tk()
+    root.title("Pixelizer")
 
-	sidebar = Rectangle(Point(600,0), Point(800,500))
-	sidebar.set_fill('white')
-	sidebar.draw(win)
+    cw, ch = imw, imh = 640, 400
+    pil_img = Image.open("Elephant.png")
+    pil_img = pil_img.resize((imw, imh), Image.ANTIALIAS)
+    img = ImageTk.PhotoImage(pil_img)
 
-	options = {
-        # 'defaultextension': ext,
-        'filetypes': [("Images", '*.png')],
-        # 'initialdir': dir,
-        'title': "Title?"
-    }
+    c = Canvas(root, width=cw, height=ch)
+    c.image = c.create_image((imw/2,imh/2), image=img) # keep tkinter from garbage collecting the photo
+    c.grid(row=0, column=0, rowspan=4, sticky=N)
 
-	buttons = {
-		'load':   Button(Point(700,42.5), 18, "Load Image", command=tkf.askopenfilename(**options)),
-		'save':   Button(Point(700, 100), 18, "Save Image", command=tkf.asksaveasfilename(**options)),
-		'update': Button(Point(700, 300), 18, "Update", command=pixelize()),
-		'quit':   Button(Point(700, 475), 18, "Quit", command=quit())
-	}
-	ptext  = Text(Point(670, 250), "Pixel Size:")
-	ptext.set_size(13)
-	ptext.draw(win)
-	pixels = Spin(Point(730, 250), 4, range=(0, 100))
-	pixels.set_fill('white')
-	pixels.draw(win)
 
-	for b in buttons:
-		buttons[b].set_color('black')
-		buttons[b].set_fill('white')
-		buttons[b].draw(win)
+    load = Button(root, text="Load Image", command=dialog.askopenfilename).grid(row=0, column=1, sticky=E)
+    save = Button(root, text="Save Image", command=dialog.asksaveasfilename).grid(row=0, column=2, sticky=W)
 
-	image = Image(Point(50,50), './Elephant.png')
-	image.draw(win)
+    size = Spinbox(root, from_=0, to=10).grid(row=1, column=1, columnspan=2)
+    run  = Button(root, text="Pixelize Image").grid(row=2, column=1, columnspan=2)
 
-	win.get_mouse()
+    root.mainloop()
 
-if __name__ == '__main__':
-	main()
+
+if __name__ == '__main__': main()
