@@ -1,6 +1,7 @@
 __pycache__/
 *.png
 *.jpg
+*.tiff
 *.gif
 .DS_Store
 *.so
